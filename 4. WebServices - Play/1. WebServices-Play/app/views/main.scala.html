@@ -2,246 +2,214 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <link href='http://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
-  <link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/main.css")">
-  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-  <script src="http://maps.googleapis.com/maps/api/js"></script>
-  <script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<script>
+/*
+* El siguiente código se ejecuta inmediatamente después
+* de que se ha cargado el DOM.
+*/
+$(function() {
   /*
-  * El siguiente código se ejecuta inmediatamente después
-  * de que se ha cargado el DOM.
+  * Multiplicación, al presionar el botón #multiplicar
+  * se hace una llamada al servicio.
   */
-  $(function() {
-    /*
-    * El siguiente evento remueve del DOM #message al hacer
-    * click en #close
-    */
-    $("#close").click( function(){
-      var elem = document.getElementById("message");
-      elem.parentElement.removeChild(elem);
-    });
-
-    /*
-    * El siguiente evento activa las llamadas a los servicio y despliega la interfaz
-    * al hacer click en el botón "consultar".
-    */
-    $("#button").click( function(){
-      var country = $("#select").val(); //Obtener value de cada <option> en <select>
-      var selectText = $("#select option:selected").text(); //obtener el texto de la opción seleccionada.
-
-      $.ajax({
+  $("#multiplica").click( function(){
+    var num1 = $("#inputm1").val();
+    var num2 = $("#inputm2").val();
+    $("#multiresult").empty(); //Vaciar el área de resultado.
+    if(!isNaN(num1) && !isNaN(num2)) { //Validar los datos de entrada.
+      $.ajax({ // asynchronous javascript xml
         type: 'GET',
-        url: 'http://localhost:9000/capitalde/'+selectText,
+        url: 'http://localhost:9000/multiplicacion/'+num1+'/'+num2,
         data: { get_param: 'value' },
         dataType:'json',
         success: function (data) {
           /*
           * Desplegar en la vista, agregando información al DOM.
           */
-          $("#app").append('<h1>Estadísticas para: <u id="title">'+selectText+', '+data.Capital+'</u></h1>'); //Poner el nombre del país de acuerdo al texto de <select>
-          $("#app").append('<div id="extract"></div>');
-          $("#app").append('<div id="clima"  ></div>');
-          $("#app").append('<div id="map"    ></div>');
-          $("#app").append('<div id="images" ></div>');
+          $("#multiresult").append(data.resultado);
         }
       });
-      /*
-      * Vaciar el div #app cada vez que se presione el botón.
-      */
-      $("#app").empty();
-
-      /*
-      * Añadir los contenedores de cada sección al div #app
-      */
-
-
-      /*
-      * Aquí se utiliza la API de google maps para obtener latitud y longitud
-      * basado en una dirección, en este caso el nombre del país.
-      */
-      var geocoder = new google.maps.Geocoder();
-      geocoder.geocode( { 'address': country, 'region': 'world' }, function(results, status) {
-        var latitude;
-        var longitude;
-        var mapProp
-
-        $.ajax({
-          type: 'GET',
-          url: 'http://localhost:9000/embajadade/'+selectText,
-          data: { get_param: 'value' },
-          dataType:'json',
-          success: function (data) {
-            latitude = parseFloat(data.Embajada.slice(0, data.Embajada.indexOf(",")));
-            longitude = parseFloat(data.Embajada.slice((data.Embajada.indexOf(",")+1), data.Embajada.length));
-            //var latitude  = data.Embajada.slice(0, string.indexOf(","));
-            console.log(latitude + ", " + longitude);
-              mapProp = {
-              center: new google.maps.LatLng(latitude, longitude), //Se necesitan dos integers
-              zoom:14,
-              mapTypeId: google.maps.MapTypeId.ROADMAP
-            };
-
-            /*
-            * Llamamos al mapa y lo agregamos al div #map
-            */
-            var map = new google.maps.Map(document.getElementById("map"),mapProp);
     }
-        });
-
-
-
-
-      });
-
-      /*
-      * Llamar asíncronamente la API REST de OpenWeather.
-      */
-      $.ajax({
-        type: 'GET',
-        url: 'http://api.openweathermap.org/data/2.5/weather?q='+country,
-        data: { get_param: 'value' },
-        dataType:'json',
-        success: function (data) {
-
-          var names = data;
-          var max = data.main.temp_max;
-          var min = data.main.temp_min;
-          var des = data.weather[0].description;
-          var max2, min2;
-
-          $("#clima").append("<h3>El Clima</h3>");
-          $("#clima").append("<ul>");
-
-          // Se llama el método que se encuentra en los cotroladores
-          $.ajax({
-            type: 'GET',
-            url: 'http://localhost:9000/f-to-c/'+max,
-            data: { get_param: 'value' },
-            dataType:'json',
-            success: function (data) {
-
-              max2 = data.Celcius;
-              console.log(max2);
-              $("#clima").append("<li>máx. " + max2.toFixed(2) + "</li>");
-
-      }
-          });
-
-          $.ajax({
-            type: 'GET',
-            url: 'http://localhost:9000/f-to-c/'+min,
-            data: { get_param: 'value' },
-            dataType:'json',
-            success: function (data) {
-
-              min2 = data.Celcius;
-              $("#clima").append("<li>mín. " + min2.toFixed(2) + "</li>");
-              console.log(min2);
-
-      }
-          });
-
-          $("#clima").append("<li>" + des + "</li>");
-          $("#clima").append("</ul>");
-
+  });
+  /*
+  * Palíndromo, al presionar el botón #checapalindromo
+  * se hace una llamada al servicio.
+  */
+  $("#checapalindromo").click( function(){
+    var input = $("#palinput").val();
+    $("#paliresult").empty();
+    $.ajax({
+      type: 'GET',
+      url: 'http://localhost:9000/palindromo/'+input,
+      data: { get_param: 'value' },
+      dataType:'json',
+      success: function (data) {
+        /*
+        * Desplegar en la vista, agregando información al DOM.
+        */
+        if(data.resultado) {
+          $("#paliresult").append("Sí");
+        } else {
+          $("#paliresult").append("No");
         }
-      });
-
-      /*
-      * Llamar asíncronamente la API REST de Flickr.
-      */
-      var longitude, latitude;
-
-      $.ajax({
-        type: 'GET',
-        url: 'http://localhost:9000/embajadade/'+selectText,
-        data: { get_param: 'value' },
-        dataType:'json',
-        success: function (data) {
-          latitude = parseFloat(data.Embajada.slice(0, data.Embajada.indexOf(",")));
-          longitude = parseFloat(data.Embajada.slice((data.Embajada.indexOf(",")+1), data.Embajada.length));
-          //var latitude  = data.Embajada.slice(0, string.indexOf(","));
-
-
-
-
-      var flickrURL = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=8682e54c00e1ee915795f57158982fa4&lat="+latitude+"&lon="+longitude+"&tags=city&sort=interestingness-desc&radius=3";
-      var src;
-      $.getJSON(flickrURL + "&format=json&jsoncallback=?", function(data){
-        $.each(data.photos.photo, function(i,item){
-          src = "http://farm"+ item.farm +".static.flickr.com/"+ item.server +"/"+ item.id +"_"+ item.secret +"_m.jpg";
-          /*
-          * Desplegar la vista, agregando componentes en el DOM.
-          */
-          $("<img/>").attr("src", src).appendTo("#images");
-          if ( i == 3 ) return false;
-        });
-      });
-    }
+      }
     });
+  });
+  $("#convierte").click( function(){
+    var input = $("#dineroinput").val();
+    $("#dineroresult").empty();
+    $.ajax({
+      type: 'GET',
+      url: 'http://localhost:9000/convertir/'+input,
+      data: { get_param: 'value' },
+      dataType:'json',
+      success: function (data){
+        $("#dineroresult").append(data.Pesos);
+      }
+    })
+  })
 
-      /*
-      * Llamar asíncronamente la API REST de Wikipedia.
-      */
-      var wikipediaURL = "http://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro=&explaintext=&titles="+country;
-      $.ajax({
-        type: 'GET',
-        url: wikipediaURL,
-        data: { get_param: 'value' },
-        dataType:'jsonp',
-        success: function (data) {
-          var data = data.query.pages;
-          var string = data[Object.keys(data)[0]].extract;
-          var output = string.slice(0, string.indexOf("."));
-          /*
-          * Desplegar la vista, agregando componentes en el DOM.
-          */
-          $("#extract").append(output + ".");
+  $("#convierteg").click( function(){
+    var input = $("#gradoinput").val();
+    $("#gradoout").empty();
+    $.ajax({
+      type: 'GET',
+      url: 'http://localhost:9000/f-to-c/'+input,
+      data: { get_param: 'value' },
+      dataType:'json',
+      success: function (data){
+        $("#gradoout").append(data.Celcius.toFixed(2));
+      }
+    })
+  })
+
+  $("#busca").click( function(){
+    var input = $("#capitalinput").val();
+    $("#capitalout").empty();
+    $.ajax({
+      type: 'GET',
+      url: 'http://localhost:9000/capitalde/'+input,
+      data: { get_param: 'value' },
+      dataType:'json',
+      success: function (data){
+        $("#capitalout").append(data.Capital);
+      }
+    })
+  })
+
+  $("#buscae").click( function(){
+    var input = $("#capitalinput").val();
+    $("#embajadaout").empty();
+    $.ajax({
+      type: 'GET',
+      url: 'http://localhost:9000/embajadade/'+input,
+      data: { get_param: 'value' },
+      dataType:'json',
+      success: function (data){
+        $("#embajadaout").append(data.Embajada);
+      }
+    })
+  })
 
 
-        }
-      });
 
-    }
-  );
 });
+
+
 </script>
 </head>
+<style>
+/*
+ * Definir el estilo del tag Body
+ */
+body{
+  background: #32373B;
+  font-family: helvetica, arial;
+  font-size: 13px;
+}
+/*
+ * La clase Box, para nuestra aplicación,
+ * cada caja es un servicio Web implementado en la interfaz.
+ */
+.box {
+  background: #495270;
+  padding: 15px;
+  border-radius: 5px;
+  border: 1px solid #7286B9;
+  box-shadow: 0px 0px 8px 0px rgba(0,0,0,0.75); /* CSS3 */
+  width: 400px;
+  color: #BABAB8;
+}
+/*
+ * Cambiamos el estilo del tag h1
+ */
+h1 {
+  font-family: impact;
+  color: #CED0DD;
+}
+/*
+ * agregamos un margen a todos los botones.
+ */
+button {
+  margin: 8px;
+}
+/*
+ * Los resultados deberían mostrarse sobre la misma línea.
+ * (Intenta quitar ésta propiedad y actualizar la página para ver que pasa).
+ */
+.result{
+  display:inline;
+}
+</style>
 <body>
-  <div id="message" class="intro">
-    <h1><u style="color: #1abc9c;">Mashup</u>, aplicaciones web híbridas</h1>
-    <p>Esta pequeña aplicación es un <b>Mashup</b>, emplea diversos servicios <b>RESTful</b>
-      para integrarlos en una sola aplicación.</p>
-      Con ésta aplicación aprenderás a:
-      <ul>
-        <li>Llamar servicios Web desde diferentes fuentes de datos</li>
-        <li>Llamar servicios Web utilizando <u>jQuery</u> y <u>Javascript</u></li>
-        <li>Desarrollar una página Web básica con HTML5 y Javascript</li>
-        <li>Implementar una vista simple con Playframework</li>
-      </ul>
-      Servicios utilizados:
-      <ul>
-        <li>Open Weather API</li>
-        <li>Google Maps</li>
-        <li>Flickr API</li>
-      </ul>
-      <div id="close"> [x] <u>Cerrar ventana</u></div>
-    </div>
-    <div class="intro">
-      <h1><u style="color: #1abc9c;">Mashup</u>, Negocios Internacionales</h1>
-      <p width="100px">
-        Nuestra aplicación permite obtener información básica de un país.
-        Para comenzar, selecciona un país de la lista y presiona el botón enviar.
-      </p>
-      <select id="select">
-        <option value="london">Reino Unido</option>
-        <option value="germany">Alemania</option>
-        <option value="austria">Austria</option>
-        <option value="italy">Italia</option>
-        <option value="france">Francia</option>
-      </select>
-      <button id="button" type="button">Consultar</button>
-      <div id="app"></div>
-    </div>
-  </body>
-  </html>
+  <h1>Multiplicación</h1>
+  <div id="multiplicacion" class="box">
+    Multiplicar:
+    <input id="inputm1" type="number"> x <input id="inputm2" type="number"> =
+    <div id="multiresult" class="result"></div>
+    <button id="multiplica" type="button">Multiplicar</button>
+  </div>
+  <h1>Palíndromo</h1>
+  <div id="palindromo" class="box">
+    ¿Es Palíndromo?
+    <input id="palinput" type="text">
+    <div id="paliresult" class="result"></div>
+    <button id="checapalindromo" type="button">Checar</button>
+  </div>
+  <h1>Conversión de USD a MXN</h1>
+  <div id="dinero" class="box">
+    Convierte de USD a MXN:
+    <input id="dineroinput" type="text">
+    =
+    <div id="dineroresult" class="result"></div>
+    <button id="convierte" type="button">Convertir</button>
+  </div>
+  <h1>Conversión de Kelvin a Celcius</h1>
+  <div id="grado" class="box">
+    Convierte de Kº a Cº
+    <input id="gradoinput" type="text">
+    =
+    <div id="gradoout" class="result"></div>
+    <button id="convierteg" type="button">Convertir</button>
+  </div>
+  <h1>Busca la Capital</h1>
+  <div id="capital" class="box">
+    La capital de
+    <input id="capitalinput" type="text">
+    es
+    <div id="capitalout" class="result"></div>
+    <button id="busca" type="button">Buscar</button>
+  </div>
+  <h1>Busca la Embajada Mexicana</h1>
+  <div id="embajada" class="box">
+    La embajada de
+    <input id="embajadainput" type="text">
+    se encuentra en
+    <div id="embajadaout" class="result"></div>
+    <button id="buscae" type="button">Buscar</button>
+  </div>
+
+
+</body>
+</html>
