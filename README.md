@@ -1,7 +1,7 @@
 # LabSistemasDistribuidos
 En este repositorio se encuentran las prácticas realizadas en el curso de sistemas distribuidos.
 
-A continuación se listarán las prácticas que se deben de encontrar en el repositorio.
+A continuación se listarán las prácticas que se deben encontrar en el repositorio.
 
 1. RPC
 2. RMI
